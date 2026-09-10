@@ -202,7 +202,7 @@
       <div class="sub">दुर्मिळ देशी वनस्पतींचा अनमोल ठेवा</div>
     </div>
 
-    <table class="meta-table">
+   <table class="meta-table">
       <tr>
         <td class="label">नाव</td>
         <td><input id="f-nav" placeholder="ज्यांचे बिल आहे त्यांचे नाव"></td>
@@ -318,7 +318,7 @@ function makeRow(){
     <td class="tapshil"><input class="r-desc"></td>
     <td><input class="r-nag" type="number" step="any"></td>
     <td><input class="r-dar" type="number" step="any"></td>
-    <td><input class="r-total" type="number" step="any"></td>
+    <td><input class="r-total" type="number" step="any" readonly></td>
     <td class="no-print"><button class="ghost" onclick="removeRow(this)">✕</button></td>
   `;
   return tr;
@@ -353,15 +353,33 @@ itemsBody.addEventListener('keydown', (e)=>{
   }
 });
 
+function calculateRowTotal(tr){
+  const nagInput = tr.querySelector('.r-nag');
+  const darInput = tr.querySelector('.r-dar');
+  const totalInput = tr.querySelector('.r-total');
+
+  const nag = parseFloat(nagInput.value);
+  const dar = parseFloat(darInput.value);
+
+  // नग × दर = एकूण रुपये
+  if(Number.isFinite(nag) && Number.isFinite(dar)){
+    const rowTotal = Math.round((nag * dar + Number.EPSILON) * 100) / 100;
+    totalInput.value = rowTotal;
+  } else {
+    totalInput.value = '';
+  }
+
+  return Number.isFinite(nag) && Number.isFinite(dar) ? nag * dar : 0;
+}
+
 itemsBody.addEventListener('input', (e)=>{
   const tr = e.target.closest('tr');
-  if(e.target.classList.contains('r-nag') || e.target.classList.contains('r-dar')){
-    const nag = parseFloat(tr.querySelector('.r-nag').value);
-    const dar = parseFloat(tr.querySelector('.r-dar').value);
-    if(!isNaN(nag) && !isNaN(dar)){
-      tr.querySelector('.r-total').value = Math.round(nag*dar*100)/100;
-    }
+  if(!tr) return;
+
+  if(e.target.matches('.r-nag, .r-dar')){
+    calculateRowTotal(tr);
   }
+
   computeGrandTotal();
   saveDraft();
 });
@@ -380,14 +398,19 @@ document.getElementById('f-billno').addEventListener('input', saveDraft);
 
 function computeGrandTotal(){
   let total = 0;
-  itemsBody.querySelectorAll('.r-total').forEach(inp=>{
-    const v = parseFloat(inp.value);
-    if(!isNaN(v)) total += v;
+
+  // नेहमी नग × दर यावरून प्रत्येक ओळीचे एकूण पुन्हा मोजा.
+  itemsBody.querySelectorAll('tr').forEach(tr=>{
+    total += calculateRowTotal(tr);
   });
+
+  total = Math.round((total + Number.EPSILON) * 100) / 100;
   document.getElementById('f-total').textContent = formatINR(total);
+
   const advance = parseFloat(document.getElementById('f-advance').value) || 0;
   const baki = total - advance;
   document.getElementById('f-baki').textContent = formatINR(baki);
+
   if(!akshariManual){
     akshariProgrammatic = true;
     document.getElementById('f-akshari').value = total > 0 ? numberToMarathiWords(total) : '';
@@ -441,8 +464,10 @@ function loadDraft(){
       tr.querySelector('.r-desc').value = r.desc||'';
       tr.querySelector('.r-nag').value = r.nag||'';
       tr.querySelector('.r-dar').value = r.dar||'';
-      tr.querySelector('.r-total').value = r.total||'';
+      // जुना saved total वापरू नका; नग × दर वरून पुन्हा calculate करा.
+      tr.querySelector('.r-total').value = '';
       itemsBody.appendChild(tr);
+      calculateRowTotal(tr);
     });
     renumber();
     computeGrandTotal();
