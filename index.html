@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="mr">
 <head>
@@ -137,21 +138,42 @@
   }
   .grand{font-weight:800; font-size:16px; color:var(--green-dark);}
   .sig{
-    margin-top:34px;
+    margin-top:30px;
     display:flex;
     justify-content:flex-end;
   }
-  .sig-box{text-align:center; min-width:190px;}
-  .sig-line{border-top:1.5px solid var(--line); margin-top:40px; padding-top:5px; font-size:12.5px; color:var(--muted);}
+  .sig-box{text-align:center; min-width:200px;}
+  .sig-img{
+    height:64px;
+    display:block;
+    margin:0 auto;
+    object-fit:contain;
+    object-position:bottom;
+  }
+  .sig-line{border-top:1.5px solid var(--line); margin-top:6px; padding-top:5px; font-size:12.5px; color:var(--muted);}
   .note{
     max-width:900px; margin:14px auto 0; font-size:12px; color:#6b6558; text-align:center;
   }
+  .brand-mark{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+  }
+  .brand-mark svg{width:22px; height:22px; flex:none;}
+  button.share{
+    background:transparent;
+    color:var(--green-dark);
+    border-color:var(--green);
+  }
+  button.share:hover, button.secondary:hover{background:rgba(47,93,58,.08);}
   @media print{
     body{background:#fff; padding:0;}
     .toolbar, .add-row-wrap, .row-del, .note{display:none !important;}
     .bill{box-shadow:none; border:2px solid #000; margin:0;}
     .hole{display:none;}
     input:focus, textarea:focus{outline:none; background:transparent;}
+    .sig-img{height:60px;}
   }
 </style>
 </head>
@@ -161,6 +183,7 @@
     <h1>8 Naturals — बिल मेकर</h1>
     <div class="btns">
       <button onclick="window.print()">🖨️ छापा / PDF डाउनलोड</button>
+      <button class="share" onclick="shareBill()">📤 व्हॉट्सअॅपवर पाठवा</button>
       <button class="secondary" onclick="newBill()">🆕 नवीन बिल</button>
     </div>
   </div>
@@ -169,7 +192,13 @@
     <span class="hole l"></span><span class="hole r"></span>
 
     <div class="brand">
-      <div class="logo">8 Naturals</div>
+      <div class="logo brand-mark">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M12 21C12 21 4 17.5 4 10.2C4 5.6 7.6 3 12 3C16.4 3 20 5.6 20 10.2C20 17.5 12 21 12 21Z" stroke="#2F5D3A" stroke-width="1.6" stroke-linejoin="round"/>
+          <path d="M12 21V8" stroke="#2F5D3A" stroke-width="1.6" stroke-linecap="round"/>
+        </svg>
+        8 Naturals
+      </div>
       <div class="sub">शेतमाल व नैसर्गिक उत्पादने</div>
     </div>
 
@@ -192,6 +221,7 @@
       <thead>
         <tr>
           <th style="width:32px;">अ.क्र</th>
+          <th style="width:90px;">दिनांक</th>
           <th>तपशील</th>
           <th style="width:70px;">नग</th>
           <th style="width:65px;">दर</th>
@@ -231,7 +261,7 @@
     </div>
   </div>
 
-  <p class="note">तुमची माहिती फक्त तुमच्या ब्राउझरवर सेव्ह होते. "छापा / PDF डाउनलोड" वापरून बिलाची PDF किंवा प्रिंट काढा.</p>
+  <p class="note">तुमची माहिती फक्त तुमच्या ब्राउझरवर सेव्ह होते. स्वाक्षरी प्रत्येक बिलावर आपोआप येते. "छापा / PDF डाउनलोड" वापरून बिलाची PDF किंवा प्रिंट काढा, किंवा थेट व्हॉट्सअॅपवर पाठवा.</p>
 
 <script>
 const itemsBody = document.getElementById('items-body');
@@ -284,6 +314,7 @@ function makeRow(){
   const tr = document.createElement('tr');
   tr.innerHTML = `
     <td class="row-idx"></td>
+    <td><input class="r-date"></td>
     <td class="tapshil"><input class="r-desc"></td>
     <td><input class="r-nag" type="number" step="any"></td>
     <td><input class="r-dar" type="number" step="any"></td>
@@ -307,6 +338,20 @@ function renumber(){
     tr.querySelector('.row-idx').textContent = i+1;
   });
 }
+
+itemsBody.addEventListener('keydown', (e)=>{
+  if(e.key !== 'Enter') return;
+  if(!e.target.matches('.r-date, .r-desc, .r-nag, .r-dar')) return;
+  const rows = [...itemsBody.querySelectorAll('tr')];
+  const isLastRow = e.target.closest('tr') === rows[rows.length-1];
+  const isLastField = e.target.classList.contains('r-dar');
+  if(isLastRow && isLastField){
+    e.preventDefault();
+    addRow();
+    const newRow = itemsBody.querySelector('tr:last-child');
+    newRow.querySelector('.r-date').focus();
+  }
+});
 
 itemsBody.addEventListener('input', (e)=>{
   const tr = e.target.closest('tr');
@@ -367,6 +412,7 @@ function saveDraft(){
     akshari: document.getElementById('f-akshari').value,
     akshariManual: akshariManual,
     rows: [...itemsBody.querySelectorAll('tr')].map(tr=>({
+      date: tr.querySelector('.r-date').value,
       desc: tr.querySelector('.r-desc').value,
       nag: tr.querySelector('.r-nag').value,
       dar: tr.querySelector('.r-dar').value,
@@ -391,6 +437,7 @@ function loadDraft(){
     itemsBody.innerHTML='';
     (data.rows && data.rows.length ? data.rows : Array(5).fill({})).forEach(r=>{
       const tr = makeRow();
+      tr.querySelector('.r-date').value = r.date||'';
       tr.querySelector('.r-desc').value = r.desc||'';
       tr.querySelector('.r-nag').value = r.nag||'';
       tr.querySelector('.r-dar').value = r.dar||'';
@@ -401,6 +448,51 @@ function loadDraft(){
     computeGrandTotal();
     return true;
   }catch(e){ return false; }
+}
+
+function shareBill(){
+  const nav = document.getElementById('f-nav').value.trim();
+  const dinank = document.getElementById('f-dinank').value.trim();
+  const billno = document.getElementById('f-billno').value.trim();
+  const total = document.getElementById('f-total').textContent.trim();
+  const baki = document.getElementById('f-baki').textContent.trim();
+  const advance = document.getElementById('f-advance').value.trim();
+  const akshari = document.getElementById('f-akshari').value.trim();
+
+  const items = [...itemsBody.querySelectorAll('tr')]
+    .map(tr=>({
+      desc: tr.querySelector('.r-desc').value.trim(),
+      nag: tr.querySelector('.r-nag').value.trim(),
+      dar: tr.querySelector('.r-dar').value.trim(),
+      tot: tr.querySelector('.r-total').value.trim(),
+    }))
+    .filter(r=>r.desc || r.nag || r.dar || r.tot);
+
+  let lines = [];
+  lines.push('*8 Naturals* — बिल');
+  if(billno) lines.push(`बिल नं: ${billno}`);
+  if(dinank) lines.push(`दिनांक: ${dinank}`);
+  if(nav) lines.push(`नाव: ${nav}`);
+  lines.push('');
+  items.forEach((r,i)=>{
+    const parts = [`${i+1}. ${r.desc||'-'}`];
+    if(r.nag) parts.push(`नग:${r.nag}`);
+    if(r.dar) parts.push(`दर:${r.dar}`);
+    if(r.tot) parts.push(`= ₹${r.tot}`);
+    lines.push(parts.join('  '));
+  });
+  lines.push('');
+  lines.push(`एकूण: ₹${total}`);
+  if(advance) lines.push(`Advance: ₹${advance}`);
+  lines.push(`बाकी: ₹${baki}`);
+  if(akshari) lines.push(`अक्षरी: ${akshari}`);
+
+  const text = encodeURIComponent(lines.join('\n'));
+  if(navigator.share){
+    navigator.share({ title: '8 Naturals बिल', text: decodeURIComponent(text) }).catch(()=>{});
+  } else {
+    window.open(`https://wa.me/?text=${text}`, '_blank');
+  }
 }
 
 function newBill(){
