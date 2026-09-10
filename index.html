@@ -201,127 +201,7 @@
       </div>
       <div class="sub">दुर्मिळ देशी वनस्पतींचा अनमोल ठेवा</div>
     </div>
- Pasted text(1).txt
-Document
-
-Yes. The correct calculation should be:
-
-प्रत्येक ओळ: नग × दर = एकूण रुपये
-एकूण: सर्व ओळींच्या एकूण रुपये ची बेरीज
-अक्षरी: त्या एकूण रकमेचे मराठी शब्दांत रूपांतर
-
-Your code already has most of this logic, but I would simplify it so the एकूण रुपये field is the source for the final “एकूण”, and अक्षरी always follows that final total.
-
-Replace your current updateRowTotal() and computeGrandTotal() with this:
-
-function updateRowTotal(tr){
-  const nag = parseFloat(tr.querySelector('.r-nag').value) || 0;
-  const dar = parseFloat(tr.querySelector('.r-dar').value) || 0;
-  const totalInput = tr.querySelector('.r-total');
-
-  // नग × दर = एकूण रुपये
-  if (nag > 0 && dar > 0) {
-    const rowTotal = Math.round((nag * dar + Number.EPSILON) * 100) / 100;
-    totalInput.value = rowTotal;
-  } else {
-    totalInput.value = '';
-  }
-}
-
-function computeGrandTotal(){
-  let grandTotal = 0;
-
-  itemsBody.querySelectorAll('tr').forEach(tr => {
-    // प्रत्येक ओळीचे एकूण रुपये
-    updateRowTotal(tr);
-
-    const rowTotal = parseFloat(
-      tr.querySelector('.r-total').value
-    );
-
-    // एकूण रुपयांची बेरीज
-    if (Number.isFinite(rowTotal)) {
-      grandTotal += rowTotal;
-    }
-  });
-
-  grandTotal =
-    Math.round((grandTotal + Number.EPSILON) * 100) / 100;
-
-  // एकूण
-  document.getElementById('f-total').textContent =
-    formatINR(grandTotal);
-
-  // Advance वजा करून बाकी
-  const advance =
-    parseFloat(document.getElementById('f-advance').value) || 0;
-
-  const baki =
-    Math.round(
-      (grandTotal - advance + Number.EPSILON) * 100
-    ) / 100;
-
-  document.getElementById('f-baki').textContent =
-    formatINR(baki);
-
-  // एकूण रक्कम अक्षरीमध्ये
-  akshariProgrammatic = true;
-
-  document.getElementById('f-akshari').value =
-    grandTotal > 0
-      ? numberToMarathiWords(grandTotal)
-      : '';
-
-  akshariProgrammatic = false;
-}
-
-So, for example:
-
-तपशील	नग	दर	एकूण रुपये
-Item 1	2	100	200
-Item 2	3	50	150
-Item 3	5	20	100
-
-Then:
-
-एकूण = ₹450
-
-अक्षरी = चारशे पन्नास रुपये
-
-This also keeps Advance and बाकी working from the same final total.
-
-write the whole code again as per i pasted same flow
-
-Yes. I rewrote the same flow from your pasted code and corrected the calculation exactly as you said:
-
-नग × दर = एकूण रुपये for every row.
-एकूण = all “एकूण रुपये” rows added together.
-अक्षरी = final एकूण in Marathi words.
-Advance is subtracted from the final total to calculate बाकी.
-Other existing flow is preserved. Your table already has these columns: नग, दर, एकूण रुपये.
-Correct example
-
-2 नग × ₹100 = ₹200
-3 नग × ₹50 = ₹150
-5 नग × ₹20 = ₹100
-
-एकूण = ₹450
-अक्षरी = चारशे पन्नास रुपये फक्त
-
-I prepared the complete corrected code file from your pasted code:
-
-Download the complete corrected code
-
-The important corrected logic is now based on the row's “एकूण रुपये” value when calculating the main एकूण, rather than separately calculating नग × दर again.
-
-8_Naturals_Bill_Maker_Corrected.txt
-Document
-You're on the free plan
-ChatGPT gets less accurate and may forget details in long conversations. Upgrade to chat longer with better memory.
-Get Plus
-New chat
-
- <table class="meta-table">
+  <table class="meta-table">
       <tr>
         <td class="label">नाव</td>
         <td><input id="f-nav" placeholder="ज्यांचे बिल आहे त्यांचे नाव"></td>
@@ -382,6 +262,265 @@ New chat
 
   <p class="note">तुमची माहिती फक्त तुमच्या ब्राउझरवर सेव्ह होते. स्वाक्षरी प्रत्येक बिलावर आपोआप येते. "छापा / PDF डाउनलोड" वापरून बिलाची PDF किंवा प्रिंट काढा, किंवा थेट व्हॉट्सअॅपवर पाठवा.</p>
 
-<script> const itemsBody = document.getElementById('items-body'); const ones = ["शून्य","एक","दोन","तीन","चार","पाच","सहा","सात","आठ","नऊ","दहा", "अकरा","बारा","तेरा","चौदा","पंधरा","सोळा","सतरा","अठरा","एकोणीस","वीस", "एकवीस","बावीस","तेवीस","चोवीस","पंचवीस","सव्वीस","सत्तावीस","अठ्ठावीस","एकोणतीस","तीस", "एकतीस","बत्तीस","तेहतीस","चौतीस","पस्तीस","छत्तीस","सदतीस","अडतीस","एकोणचाळीस","चाळीस", "एक्केचाळीस","बेचाळीस","त्रेचाळीस","चव्वेचाळीस","पंचेचाळीस","सेहेचाळीस","सत्तेचाळीस","अठ्ठेचाळीस","एकोणपन्नास","पन्नास", "एक्कावन्न","बावन्न","त्रेपन्न","चोपन्न","पंचावन्न","छप्पन्न","सत्तावन्न","अठ्ठावन्न","एकोणसाठ","साठ", "एकसष्ठ","बासष्ठ","त्रेसष्ठ","चौसष्ठ","पासष्ठ","सहासष्ठ","सदुसष्ठ","अडुसष्ठ","एकोणसत्तर","सत्तर", "एक्काहत्तर","बाहत्तर","त्र्याहत्तर","चौर्‍याहत्तर","पंच्याहत्तर","शहात्तर","सत्याहत्तर","अठ्याहत्तर","एकोणऐंशी","ऐंशी", "एक्क्याऐंशी","ब्याऐंशी","त्र्याऐंशी","चौऱ्याऐंशी","पंच्याऐंशी","शहाऐंशी","सत्त्याऐंशी","अठ्ठ्याऐंशी","एकोणनव्वद","नव्वद", "एक्क्याण्णव","ब्याण्णव","त्र्याण्णव","चौऱ्याण्णव","पंच्याण्णव","शहाण्णव","सत्त्याण्णव","अठ्ठ्याण्णव","नव्याण्णव"]; function twoDigitWord(n){ return ones[n] || ''; } function numberToMarathiWords(num){   num = Math.round(num);   if(num === 0) return "शून्य रुपये फक्त";   let n = num;   const crore = Math.floor(n/10000000); n%=10000000;   const lakh = Math.floor(n/100000); n%=100000;   const thousand = Math.floor(n/1000); n%=1000;   const hundred = Math.floor(n/100); n%=100;   const rest = n;   let parts=[];   if(crore) parts.push(twoDigitWord(crore)+" कोटी");   if(lakh) parts.push(twoDigitWord(lakh)+" लाख");   if(thousand) parts.push(twoDigitWord(thousand)+" हजार");   if(hundred) parts.push(hundred===1 ? "शंभर" : ones[hundred]+"शे");   if(rest) parts.push(twoDigitWord(rest));   return parts.join(" ") + " रुपये फक्त"; } function formatINR(num){   if(isNaN(num)) num = 0;   const isNeg = num < 0; num = Math.abs(num);   const fixed = num.toFixed(2);   let [intPart, dec] = fixed.split('.');   let lastThree = intPart.slice(-3);   let other = intPart.slice(0, -3);   if(other !== '') lastThree = ',' + lastThree;   const grouped = other.replace(/\B(?=(\d{2})+(?!\d))/g, ',') + lastThree;   return (isNeg?'-':'') + grouped + (dec === '00' ? '' : '.' + dec); } let rowCounter = 0; function makeRow(){   rowCounter++;   const tr = document.createElement('tr');   tr.innerHTML = `     <td class="row-idx"></td>     <td><input class="r-date"></td>     <td class="tapshil"><input class="r-desc"></td>     <td><input class="r-nag" type="number" step="any"></td>     <td><input class="r-dar" type="number" step="any"></td>     <td><input class="r-total" type="number" step="any" readonly></td>     <td class="no-print"><button class="ghost" onclick="removeRow(this)">✕</button></td>   `;   return tr; } function addRow(){   itemsBody.appendChild(makeRow());   renumber();   saveDraft(); } function removeRow(btn){   btn.closest('tr').remove();   renumber();   computeGrandTotal(); } function renumber(){   [...itemsBody.querySelectorAll('tr')].forEach((tr,i)=>{     tr.querySelector('.row-idx').textContent = i+1;   }); } itemsBody.addEventListener('keydown', (e)=>{   if(e.key !== 'Enter') return;   if(!e.target.matches('.r-date, .r-desc, .r-nag, .r-dar')) return;   const rows = [...itemsBody.querySelectorAll('tr')];   const isLastRow = e.target.closest('tr') === rows[rows.length-1];   const isLastField = e.target.classList.contains('r-dar');   if(isLastRow && isLastField){     e.preventDefault();     addRow();     const newRow = itemsBody.querySelector('tr:last-child');     newRow.querySelector('.r-date').focus();   } }); itemsBody.addEventListener('input', (e)=>{   const tr = e.target.closest('tr');   if(e.target.classList.contains('r-nag') || e.target.classList.contains('r-dar')){     updateRowTotal(tr);   }   computeGrandTotal();   saveDraft(); }); function updateRowTotal(tr){   const nag = parseFloat(tr.querySelector('.r-nag').value);   const dar = parseFloat(tr.querySelector('.r-dar').value);   const totalInput = tr.querySelector('.r-total');   if(Number.isFinite(nag) && Number.isFinite(dar)){     totalInput.value = Math.round((nag * dar + Number.EPSILON) * 100) / 100;   } else {     totalInput.value = '';   } } let akshariManual = false; let akshariProgrammatic = false; document.getElementById('f-akshari').addEventListener('input', ()=>{   if(!akshariProgrammatic) akshariManual = true;   saveDraft(); }); document.getElementById('f-advance').addEventListener('input', ()=>{ computeGrandTotal(); saveDraft(); }); document.getElementById('f-nav').addEventListener('input', saveDraft); document.getElementById('f-patta').addEventListener('input', saveDraft); document.getElementById('f-dinank').addEventListener('input', saveDraft); document.getElementById('f-billno').addEventListener('input', saveDraft); function computeGrandTotal(){   let total = 0;   itemsBody.querySelectorAll('tr').forEach(tr=>{     updateRowTotal(tr);     const nag = parseFloat(tr.querySelector('.r-nag').value);     const dar = parseFloat(tr.querySelector('.r-dar').value);     if(Number.isFinite(nag) && Number.isFinite(dar)){       total += nag * dar;     }   });   total = Math.round((total + Number.EPSILON) * 100) / 100;   document.getElementById('f-total').textContent = formatINR(total);   const advance = parseFloat(document.getElementById('f-advance').value) || 0;   const baki = Math.round((total - advance + Number.EPSILON) * 100) / 100;   document.getElementById('f-baki').textContent = formatINR(baki);   akshariProgrammatic = true;   document.getElementById('f-akshari').value = total > 0 ? numberToMarathiWords(total) : '';   akshariProgrammatic = false; } function todayMarathiFormat(){   const d = new Date();   const dd = String(d.getDate()).padStart(2,'0');   const mm = String(d.getMonth()+1).padStart(2,'0');   return `${dd}-${mm}-${d.getFullYear()}`; } function saveDraft(){   const data = {     nav: document.getElementById('f-nav').value,     patta: document.getElementById('f-patta').value,     dinank: document.getElementById('f-dinank').value,     billno: document.getElementById('f-billno').value,     advance: document.getElementById('f-advance').value,     akshari: document.getElementById('f-akshari').value,     akshariManual: akshariManual,     rows: [...itemsBody.querySelectorAll('tr')].map(tr=>({       date: tr.querySelector('.r-date').value,       desc: tr.querySelector('.r-desc').value,       nag: tr.querySelector('.r-nag').value,       dar: tr.querySelector('.r-dar').value,       total: tr.querySelector('.r-total').value,     }))   };   localStorage.setItem('8n_draft', JSON.stringify(data)); } function loadDraft(){   const raw = localStorage.getItem('8n_draft');   if(!raw) return false;   try{     const data = JSON.parse(raw);     document.getElementById('f-nav').value = data.nav||'';     document.getElementById('f-patta').value = data.patta||'';     document.getElementById('f-dinank').value = data.dinank||'';     document.getElementById('f-billno').value = data.billno||'';     document.getElementById('f-advance').value = data.advance||'';     akshariManual = !!data.akshariManual;     document.getElementById('f-akshari').value = data.akshari||'';     itemsBody.innerHTML='';     (data.rows && data.rows.length ? data.rows : Array(5).fill({})).forEach(r=>{       const tr = makeRow();       tr.querySelector('.r-date').value = r.date||'';       tr.querySelector('.r-desc').value = r.desc||'';       tr.querySelector('.r-nag').value = r.nag||'';       tr.querySelector('.r-dar').value = r.dar||'';       tr.querySelector('.r-total').value = r.total||'';       itemsBody.appendChild(tr);     });     renumber();     computeGrandTotal();     return true;   }catch(e){ return false; } } function shareBill(){   const nav = document.getElementById('f-nav').value.trim();   const dinank = document.getElementById('f-dinank').value.trim();   const billno = document.getElementById('f-billno').value.trim();   const total = document.getElementById('f-total').textContent.trim();   const baki = document.getElementById('f-baki').textContent.trim();   const advance = document.getElementById('f-advance').value.trim();   const akshari = document.getElementById('f-akshari').value.trim();   const items = [...itemsBody.querySelectorAll('tr')]     .map(tr=>({       desc: tr.querySelector('.r-desc').value.trim(),       nag: tr.querySelector('.r-nag').value.trim(),       dar: tr.querySelector('.r-dar').value.trim(),       tot: tr.querySelector('.r-total').value.trim(),     }))     .filter(r=>r.desc || r.nag || r.dar || r.tot);   let lines = [];   lines.push('*8 Naturals* — बिल');   if(billno) lines.push(`बिल नं: ${billno}`);   if(dinank) lines.push(`दिनांक: ${dinank}`);   if(nav) lines.push(`नाव: ${nav}`);   lines.push('');   items.forEach((r,i)=>{     const parts = [`${i+1}. ${r.desc||'-'}`];     if(r.nag) parts.push(`नग:${r.nag}`);     if(r.dar) parts.push(`दर:${r.dar}`);     if(r.tot) parts.push(`= ₹${r.tot}`);     lines.push(parts.join('  '));   });   lines.push('');   lines.push(`एकूण: ₹${total}`);   if(advance) lines.push(`Advance: ₹${advance}`);   lines.push(`बाकी: ₹${baki}`);   if(akshari) lines.push(`अक्षरी: ${akshari}`);   const text = encodeURIComponent(lines.join('\n'));   if(navigator.share){     navigator.share({ title: '8 Naturals बिल', text: decodeURIComponent(text) }).catch(()=>{});   } else {     window.open(`https://wa.me/?text=${text}`, '_blank');   } } function newBill(){   if(!confirm('नवीन बिल सुरू करायचे? सध्याचे न-सेव्ह केलेले बिल पुसले जाईल.')) return;   let next = parseInt(localStorage.getItem('8n_bill_counter')||'1');   next += 1;   localStorage.setItem('8n_bill_counter', String(next));   document.getElementById('f-nav').value='';   document.getElementById('f-patta').value='';   document.getElementById('f-dinank').value = todayMarathiFormat();   document.getElementById('f-billno').value = next;   document.getElementById('f-advance').value='';   akshariManual = false;   document.getElementById('f-akshari').value='';   itemsBody.innerHTML='';   for(let i=0;i<5;i++) itemsBody.appendChild(makeRow());   renumber();   computeGrandTotal();   saveDraft(); } // init if(!loadDraft()){   document.getElementById('f-dinank').value = todayMarathiFormat();   document.getElementById('f-billno').value = localStorage.getItem('8n_bill_counter') || '1';   for(let i=0;i<5;i++) itemsBody.appendChild(makeRow());   renumber();   computeGrandTotal(); } </script>
+<script>
+const itemsBody = document.getElementById('items-body');
+const ones = ["शून्य","एक","दोन","तीन","चार","पाच","सहा","सात","आठ","नऊ","दहा",
+"अकरा","बारा","तेरा","चौदा","पंधरा","सोळा","सतरा","अठरा","एकोणीस","वीस",
+"एकवीस","बावीस","तेवीस","चोवीस","पंचवीस","सव्वीस","सत्तावीस","अठ्ठावीस","एकोणतीस","तीस",
+"एकतीस","बत्तीस","तेहतीस","चौतीस","पस्तीस","छत्तीस","सदतीस","अडतीस","एकोणचाळीस","चाळीस",
+"एक्केचाळीस","बेचाळीस","त्रेचाळीस","चव्वेचाळीस","पंचेचाळीस","सेहेचाळीस","सत्तेचाळीस","अठ्ठेचाळीस","एकोणपन्नास","पन्नास",
+"एक्कावन्न","बावन्न","त्रेपन्न","चोपन्न","पंचावन्न","छप्पन्न","सत्तावन्न","अठ्ठावन्न","एकोणसाठ","साठ",
+"एकसष्ठ","बासष्ठ","त्रेसष्ठ","चौसष्ठ","पासष्ठ","सहासष्ठ","सदुसष्ठ","अडुसष्ठ","एकोणसत्तर","सत्तर",
+"एक्काहत्तर","बाहत्तर","त्र्याहत्तर","चौर्‍याहत्तर","पंच्याहत्तर","शहात्तर","सत्याहत्तर","अठ्याहत्तर","एकोणऐंशी","ऐंशी",
+"एक्क्याऐंशी","ब्याऐंशी","त्र्याऐंशी","चौऱ्याऐंशी","पंच्याऐंशी","शहाऐंशी","सत्त्याऐंशी","अठ्ठ्याऐंशी","एकोणनव्वद","नव्वद",
+"एक्क्याण्णव","ब्याण्णव","त्र्याण्णव","चौऱ्याण्णव","पंच्याण्णव","शहाण्णव","सत्त्याण्णव","अठ्ठ्याण्णव","नव्याण्णव"];
 
-</body> </html> 
+function twoDigitWord(n){ return ones[n] || ''; }
+
+function numberToMarathiWords(num){
+  num = Math.round(num);
+  if(num === 0) return "शून्य रुपये फक्त";
+  let n = num;
+  const crore = Math.floor(n/10000000); n%=10000000;
+  const lakh = Math.floor(n/100000); n%=100000;
+  const thousand = Math.floor(n/1000); n%=1000;
+  const hundred = Math.floor(n/100); n%=100;
+  const rest = n;
+  let parts=[];
+  if(crore) parts.push(twoDigitWord(crore)+" कोटी");
+  if(lakh) parts.push(twoDigitWord(lakh)+" लाख");
+  if(thousand) parts.push(twoDigitWord(thousand)+" हजार");
+  if(hundred) parts.push(hundred===1 ? "शंभर" : ones[hundred]+"शे");
+  if(rest) parts.push(twoDigitWord(rest));
+  return parts.join(" ") + " रुपये फक्त";
+}
+
+function formatINR(num){
+  if(isNaN(num)) num = 0;
+  const isNeg = num < 0; num = Math.abs(num);
+  const fixed = num.toFixed(2);
+  let [intPart, dec] = fixed.split('.');
+  let lastThree = intPart.slice(-3);
+  let other = intPart.slice(0, -3);
+  if(other !== '') lastThree = ',' + lastThree;
+  const grouped = other.replace(/\B(?=(\d{2})+(?!\d))/g, ',') + lastThree;
+  return (isNeg?'-':'') + grouped + (dec === '00' ? '' : '.' + dec);
+}
+
+let rowCounter = 0;
+function makeRow(){
+  rowCounter++;
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td class="row-idx"></td>
+    <td><input class="r-date"></td>
+    <td class="tapshil"><input class="r-desc"></td>
+    <td><input class="r-nag" type="number" step="any"></td>
+    <td><input class="r-dar" type="number" step="any"></td>
+    <td><input class="r-total" type="number" step="any"></td>
+    <td class="no-print"><button class="ghost" onclick="removeRow(this)">✕</button></td>
+  `;
+  return tr;
+}
+function addRow(){
+  itemsBody.appendChild(makeRow());
+  renumber();
+  saveDraft();
+}
+function removeRow(btn){
+  btn.closest('tr').remove();
+  renumber();
+  computeGrandTotal();
+}
+function renumber(){
+  [...itemsBody.querySelectorAll('tr')].forEach((tr,i)=>{
+    tr.querySelector('.row-idx').textContent = i+1;
+  });
+}
+
+itemsBody.addEventListener('keydown', (e)=>{
+  if(e.key !== 'Enter') return;
+  if(!e.target.matches('.r-date, .r-desc, .r-nag, .r-dar')) return;
+  const rows = [...itemsBody.querySelectorAll('tr')];
+  const isLastRow = e.target.closest('tr') === rows[rows.length-1];
+  const isLastField = e.target.classList.contains('r-dar');
+  if(isLastRow && isLastField){
+    e.preventDefault();
+    addRow();
+    const newRow = itemsBody.querySelector('tr:last-child');
+    newRow.querySelector('.r-date').focus();
+  }
+});
+
+itemsBody.addEventListener('input', (e)=>{
+  const tr = e.target.closest('tr');
+  if(e.target.classList.contains('r-nag') || e.target.classList.contains('r-dar')){
+    const nag = parseFloat(tr.querySelector('.r-nag').value);
+    const dar = parseFloat(tr.querySelector('.r-dar').value);
+    if(!isNaN(nag) && !isNaN(dar)){
+      tr.querySelector('.r-total').value = Math.round(nag*dar*100)/100;
+    }
+  }
+  computeGrandTotal();
+  saveDraft();
+});
+
+let akshariManual = false;
+let akshariProgrammatic = false;
+document.getElementById('f-akshari').addEventListener('input', ()=>{
+  if(!akshariProgrammatic) akshariManual = true;
+  saveDraft();
+});
+document.getElementById('f-advance').addEventListener('input', ()=>{ computeGrandTotal(); saveDraft(); });
+document.getElementById('f-nav').addEventListener('input', saveDraft);
+document.getElementById('f-patta').addEventListener('input', saveDraft);
+document.getElementById('f-dinank').addEventListener('input', saveDraft);
+document.getElementById('f-billno').addEventListener('input', saveDraft);
+
+function computeGrandTotal(){
+  let total = 0;
+  itemsBody.querySelectorAll('.r-total').forEach(inp=>{
+    const v = parseFloat(inp.value);
+    if(!isNaN(v)) total += v;
+  });
+  document.getElementById('f-total').textContent = formatINR(total);
+  const advance = parseFloat(document.getElementById('f-advance').value) || 0;
+  const baki = total - advance;
+  document.getElementById('f-baki').textContent = formatINR(baki);
+  if(!akshariManual){
+    akshariProgrammatic = true;
+    document.getElementById('f-akshari').value = total > 0 ? numberToMarathiWords(total) : '';
+    akshariProgrammatic = false;
+  }
+}
+
+function todayMarathiFormat(){
+  const d = new Date();
+  const dd = String(d.getDate()).padStart(2,'0');
+  const mm = String(d.getMonth()+1).padStart(2,'0');
+  return `${dd}-${mm}-${d.getFullYear()}`;
+}
+
+function saveDraft(){
+  const data = {
+    nav: document.getElementById('f-nav').value,
+    patta: document.getElementById('f-patta').value,
+    dinank: document.getElementById('f-dinank').value,
+    billno: document.getElementById('f-billno').value,
+    advance: document.getElementById('f-advance').value,
+    akshari: document.getElementById('f-akshari').value,
+    akshariManual: akshariManual,
+    rows: [...itemsBody.querySelectorAll('tr')].map(tr=>({
+      date: tr.querySelector('.r-date').value,
+      desc: tr.querySelector('.r-desc').value,
+      nag: tr.querySelector('.r-nag').value,
+      dar: tr.querySelector('.r-dar').value,
+      total: tr.querySelector('.r-total').value,
+    }))
+  };
+  localStorage.setItem('8n_draft', JSON.stringify(data));
+}
+
+function loadDraft(){
+  const raw = localStorage.getItem('8n_draft');
+  if(!raw) return false;
+  try{
+    const data = JSON.parse(raw);
+    document.getElementById('f-nav').value = data.nav||'';
+    document.getElementById('f-patta').value = data.patta||'';
+    document.getElementById('f-dinank').value = data.dinank||'';
+    document.getElementById('f-billno').value = data.billno||'';
+    document.getElementById('f-advance').value = data.advance||'';
+    akshariManual = !!data.akshariManual;
+    document.getElementById('f-akshari').value = data.akshari||'';
+    itemsBody.innerHTML='';
+    (data.rows && data.rows.length ? data.rows : Array(5).fill({})).forEach(r=>{
+      const tr = makeRow();
+      tr.querySelector('.r-date').value = r.date||'';
+      tr.querySelector('.r-desc').value = r.desc||'';
+      tr.querySelector('.r-nag').value = r.nag||'';
+      tr.querySelector('.r-dar').value = r.dar||'';
+      tr.querySelector('.r-total').value = r.total||'';
+      itemsBody.appendChild(tr);
+    });
+    renumber();
+    computeGrandTotal();
+    return true;
+  }catch(e){ return false; }
+}
+
+function shareBill(){
+  const nav = document.getElementById('f-nav').value.trim();
+  const dinank = document.getElementById('f-dinank').value.trim();
+  const billno = document.getElementById('f-billno').value.trim();
+  const total = document.getElementById('f-total').textContent.trim();
+  const baki = document.getElementById('f-baki').textContent.trim();
+  const advance = document.getElementById('f-advance').value.trim();
+  const akshari = document.getElementById('f-akshari').value.trim();
+
+  const items = [...itemsBody.querySelectorAll('tr')]
+    .map(tr=>({
+      desc: tr.querySelector('.r-desc').value.trim(),
+      nag: tr.querySelector('.r-nag').value.trim(),
+      dar: tr.querySelector('.r-dar').value.trim(),
+      tot: tr.querySelector('.r-total').value.trim(),
+    }))
+    .filter(r=>r.desc || r.nag || r.dar || r.tot);
+
+  let lines = [];
+  lines.push('*8 Naturals* — बिल');
+  if(billno) lines.push(`बिल नं: ${billno}`);
+  if(dinank) lines.push(`दिनांक: ${dinank}`);
+  if(nav) lines.push(`नाव: ${nav}`);
+  lines.push('');
+  items.forEach((r,i)=>{
+    const parts = [`${i+1}. ${r.desc||'-'}`];
+    if(r.nag) parts.push(`नग:${r.nag}`);
+    if(r.dar) parts.push(`दर:${r.dar}`);
+    if(r.tot) parts.push(`= ₹${r.tot}`);
+    lines.push(parts.join('  '));
+  });
+  lines.push('');
+  lines.push(`एकूण: ₹${total}`);
+  if(advance) lines.push(`Advance: ₹${advance}`);
+  lines.push(`बाकी: ₹${baki}`);
+  if(akshari) lines.push(`अक्षरी: ${akshari}`);
+
+  const text = encodeURIComponent(lines.join('\n'));
+  if(navigator.share){
+    navigator.share({ title: '8 Naturals बिल', text: decodeURIComponent(text) }).catch(()=>{});
+  } else {
+    window.open(`https://wa.me/?text=${text}`, '_blank');
+  }
+}
+
+function newBill(){
+  if(!confirm('नवीन बिल सुरू करायचे? सध्याचे न-सेव्ह केलेले बिल पुसले जाईल.')) return;
+  let next = parseInt(localStorage.getItem('8n_bill_counter')||'1');
+  next += 1;
+  localStorage.setItem('8n_bill_counter', String(next));
+  document.getElementById('f-nav').value='';
+  document.getElementById('f-patta').value='';
+  document.getElementById('f-dinank').value = todayMarathiFormat();
+  document.getElementById('f-billno').value = next;
+  document.getElementById('f-advance').value='';
+  akshariManual = false;
+  document.getElementById('f-akshari').value='';
+  itemsBody.innerHTML='';
+  for(let i=0;i<5;i++) itemsBody.appendChild(makeRow());
+  renumber();
+  computeGrandTotal();
+  saveDraft();
+}
+
+// init
+if(!loadDraft()){
+  document.getElementById('f-dinank').value = todayMarathiFormat();
+  document.getElementById('f-billno').value = localStorage.getItem('8n_bill_counter') || '1';
+  for(let i=0;i<5;i++) itemsBody.appendChild(makeRow());
+  renumber();
+  computeGrandTotal();
+}
+</script>
+</body>
+</html>
