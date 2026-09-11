@@ -1,10 +1,9 @@
-
 <!DOCTYPE html>
 <html lang="mr">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>8 Naturals – बिल तयार करा</title>
+<title>8 Naturals – Bill Challans </title>
 <style>
   :root{
     --paper:#FBF8F1;
@@ -183,7 +182,7 @@
     <h1>8 Naturals — बिल मेकर</h1>
     <div class="btns">
       <button onclick="window.print()">🖨️ छापा / PDF डाउनलोड</button>
-      <button class="share" onclick="shareBill()">📤 व्हॉट्सअॅपवर पाठवा</button>
+      <button class="share" onclick="shareBill()">📤 व्हॉट्सॲप वर पाठवा</button>
       <button class="secondary" onclick="newBill()">🆕 नवीन बिल</button>
     </div>
   </div>
@@ -201,7 +200,8 @@
       </div>
       <div class="sub">दुर्मिळ देशी वनस्पतींचा अनमोल ठेवा</div>
     </div>
-  <table class="meta-table">
+
+    <table class="meta-table">
       <tr>
         <td class="label">नाव</td>
         <td><input id="f-nav" placeholder="ज्यांचे बिल आहे त्यांचे नाव"></td>
@@ -220,7 +220,6 @@
       <thead>
         <tr>
           <th style="width:32px;">अ.क्र</th>
- 
           <th>तपशील</th>
           <th style="width:70px;">नग</th>
           <th style="width:65px;">दर</th>
@@ -313,7 +312,6 @@ function makeRow(){
   const tr = document.createElement('tr');
   tr.innerHTML = `
     <td class="row-idx"></td>
-    <td><input class="r-date"></td>
     <td class="tapshil"><input class="r-desc"></td>
     <td><input class="r-nag" type="number" step="any"></td>
     <td><input class="r-dar" type="number" step="any"></td>
@@ -340,7 +338,7 @@ function renumber(){
 
 itemsBody.addEventListener('keydown', (e)=>{
   if(e.key !== 'Enter') return;
-  if(!e.target.matches('.r-date, .r-desc, .r-nag, .r-dar')) return;
+  if(!e.target.matches('.r-desc, .r-nag, .r-dar')) return;
   const rows = [...itemsBody.querySelectorAll('tr')];
   const isLastRow = e.target.closest('tr') === rows[rows.length-1];
   const isLastField = e.target.classList.contains('r-dar');
@@ -348,7 +346,7 @@ itemsBody.addEventListener('keydown', (e)=>{
     e.preventDefault();
     addRow();
     const newRow = itemsBody.querySelector('tr:last-child');
-    newRow.querySelector('.r-date').focus();
+    newRow.querySelector('.r-desc').focus();
   }
 });
 
@@ -411,7 +409,6 @@ function saveDraft(){
     akshari: document.getElementById('f-akshari').value,
     akshariManual: akshariManual,
     rows: [...itemsBody.querySelectorAll('tr')].map(tr=>({
-      date: tr.querySelector('.r-date').value,
       desc: tr.querySelector('.r-desc').value,
       nag: tr.querySelector('.r-nag').value,
       dar: tr.querySelector('.r-dar').value,
@@ -436,7 +433,6 @@ function loadDraft(){
     itemsBody.innerHTML='';
     (data.rows && data.rows.length ? data.rows : Array(5).fill({})).forEach(r=>{
       const tr = makeRow();
-      tr.querySelector('.r-date').value = r.date||'';
       tr.querySelector('.r-desc').value = r.desc||'';
       tr.querySelector('.r-nag').value = r.nag||'';
       tr.querySelector('.r-dar').value = r.dar||'';
